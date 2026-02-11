@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Portal</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; }
+        .badge { background: #3498db; color: white; padding: 5px 10px; border-radius: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 Office Gamification Portal</h1>
+
+    <div class="card">
+        <h2>Department Battle</h2>
+        <ul>
+            {% for dept in departments %}
+                <li>{{ dept.name }}</li>
+            {% empty %}
+                <li>No departments yet! (Add them in Admin panel)</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>💡 Recent Ideas (Kaizen)</h2>
+        <ul>
+            {% for idea in ideas %}
+                <li>
+                    <strong>{{ idea.title }}</strong> - {{ idea.votes }} votes
+                    <br>
+                    <small>{{ idea.description }}</small>
+                </li>
+            {% empty %}
+                <li>No ideas submitted yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</body>
+</html>
