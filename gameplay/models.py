@@ -31,7 +31,7 @@ class ActionLog(models.Model):
 class Idea(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    submitted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     votes = models.IntegerField(default=0)
     is_approved = models.BooleanField(default=False)
 

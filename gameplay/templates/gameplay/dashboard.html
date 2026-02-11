@@ -24,6 +24,24 @@
         </ul>
     </div>
 
+    <div class="card" style="border-left: 5px solid #2ecc71;">
+        <h2>📝 Submit an Anonymous Idea</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 10px;">
+                <label>Title:</label><br>
+                {{ form.title }}
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Description:</label><br>
+                {{ form.description }}
+            </div>
+            <button type="submit" style="background: #2ecc71; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">
+                Submit Anonymously
+            </button>
+        </form>
+    </div>
+    
     <div class="card">
         <h2>💡 Recent Ideas (Kaizen)</h2>
         <ul>
