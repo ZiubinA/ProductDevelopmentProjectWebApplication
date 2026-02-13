@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Portal</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; margin: 0; }
+        /* Navigation Bar Styles */
+        .navbar { background: #2c3e50; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .navbar a { color: white; text-decoration: none; font-weight: bold; margin-right: 20px; font-size: 1.1em; }
+        .navbar a:hover { color: #3498db; }
+        
+        /* Card Styles */
+        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input[type=text], textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="{% url 'dashboard' %}">🏠 Home</a>
+        <a href="{% url 'departments_page' %}">📊 Departments</a>
+        <a href="{% url 'ideas_page' %}">💡 Ideas</a>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+</html>

@@ -1,46 +1,40 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count
 from .models import Department, Idea
 from .forms import IdeaForm
-from django.db.models import Count
 
+# 1. Home Page (Welcome)
 def dashboard(request):
+    return render(request, 'gameplay/dashboard.html')
+
+# 2. Departments Page
+def departments_page(request):
+    all_departments = Department.objects.all()
+    return render(request, 'gameplay/departments.html', {'departments': all_departments})
+
+# 3. Ideas Page (Form + List)
+def ideas_page(request):
     if request.method == 'POST':
         form = IdeaForm(request.POST)
         if form.is_valid():
             new_idea = form.save(commit=False)
-            # ALWAYS save the real user (so Admin knows)
             new_idea.submitted_by = request.user
             new_idea.save()
-            return redirect('dashboard')
+            return redirect('ideas_page') # Stay on this page
     else:
         form = IdeaForm()
 
-    all_departments = Department.objects.all()
-    
-    # Keep this logic to count votes correctly
+    # Get ideas sorted by votes
     pending_ideas = Idea.objects.annotate(num_votes=Count('voters')).filter(is_approved=False).order_by('-num_votes')
-
-    context = {
-        'departments': all_departments,
-        'ideas': pending_ideas,
-        'form': form,
-    }
     
-    return render(request, 'gameplay/dashboard.html', context)
+    return render(request, 'gameplay/ideas.html', {'ideas': pending_ideas, 'form': form})
 
+# 4. Voting Logic
 def vote_idea(request, idea_id):
-    # 1. Get the idea
     idea = get_object_or_404(Idea, pk=idea_id)
-    
-    # 2. Check if the user is logged in
     if request.user.is_authenticated:
-        # 3. Check if they are already in the "voters" list
         if request.user in idea.voters.all():
-            # (Optional) If they already voted, remove their vote? (Toggle)
             idea.voters.remove(request.user)
         else:
-            # If they haven't voted, add them
             idea.voters.add(request.user)
-
-    # 4. Refresh the page
-    return redirect('dashboard')
+    return redirect('ideas_page') # Go back to ideas page

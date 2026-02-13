@@ -1,0 +1,14 @@
+{% extends 'gameplay/base.html' %}
+
+{% block content %}
+    <h1>Department Battle</h1>
+    <div class="card">
+        <ul>
+            {% for dept in departments %}
+                <li>{{ dept.name }}</li>
+            {% empty %}
+                <li>No departments yet!</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
