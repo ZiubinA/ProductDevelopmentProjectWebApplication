@@ -21,6 +21,7 @@
     <a href="{% url 'dashboard' %}">Home</a>
     <a href="{% url 'departments_page' %}">Departments</a>
     <a href="{% url 'ideas_page' %}">Ideas</a>
+    <a href="{% url 'training_page' %}">Training</a>  </div>
     
     {% if user.is_authenticated %}
         <a href="{% url 'profile_page' %}" style="float: right;">👤 Profile</a>

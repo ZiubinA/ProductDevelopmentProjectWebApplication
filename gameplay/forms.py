@@ -1,5 +1,5 @@
 from django import forms
-from .models import Idea
+from .models import Idea, Training
 
 class IdeaForm(forms.ModelForm):
     class Meta:
@@ -14,4 +14,16 @@ class IdeaForm(forms.ModelForm):
         }
         labels = {
             'is_anonymous': 'Hide my name (Post Anonymously)',
+        }
+
+class TrainingForm(forms.ModelForm):
+    class Meta:
+        model = Training
+        fields = ['title', 'description', 'date_time', 'location']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Training Title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'What will we learn?', 'rows': 3}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Room or Link'}),
+            # This makes the browser show a calendar popup
+            'date_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
-from .models import Department, Idea, Profile
-from .forms import IdeaForm
+from .models import Department, Idea, Profile, Training 
+from .forms import IdeaForm, TrainingForm              
 from django.contrib.auth.decorators import login_required
 
 # 1. Home Page (Welcome)
@@ -51,3 +51,36 @@ def profile_page(request):
         'profile': user_profile,
         'my_ideas': my_ideas
     })
+
+# 5. Training Page (List + Create)
+def training_page(request):
+    # Handle "Add Training" form
+    if request.method == 'POST':
+        form = TrainingForm(request.POST)
+        if form.is_valid():
+            new_training = form.save(commit=False)
+            new_training.organizer = request.user
+            new_training.save()
+            return redirect('training_page')
+    else:
+        form = TrainingForm()
+
+    # Get all trainings, sorted by newest first
+    trainings = Training.objects.all().order_by('date_time')
+
+    return render(request, 'gameplay/training.html', {
+        'trainings': trainings, 
+        'form': form
+    })
+
+# 6. Registration Logic (Like Voting)
+def register_training(request, training_id):
+    training = get_object_or_404(Training, pk=training_id)
+
+    if request.user.is_authenticated:
+        if request.user in training.attendees.all():
+            training.attendees.remove(request.user) # Un-register
+        else:
+            training.attendees.add(request.user)    # Register
+
+    return redirect('training_page')

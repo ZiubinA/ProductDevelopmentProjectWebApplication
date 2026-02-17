@@ -41,3 +41,20 @@ class Idea(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Training(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    # "datetime-local" input will save to this field
+    date_time = models.DateTimeField()
+    location = models.CharField(max_length=100) # e.g. "Meeting Room A" or "Zoom"
+    
+    organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organized_trainings')
+    
+    # This tracks who registered
+    attendees = models.ManyToManyField(User, related_name='attended_trainings', blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
