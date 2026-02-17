@@ -1,0 +1,22 @@
+{% extends 'gameplay/base.html' %}
+{% block content %}
+    <h1>Add Quiz for: {{ training.title }}</h1>
+    
+    <div class="card" style="border-left: 5px solid #f39c12;">
+        <h3>Add a New Question</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="background: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px;">Save Question</button>
+        </form>
+        <br>
+        <a href="{% url 'training_page' %}">← Back to Trainings</a>
+    </div>
+
+    <h3>Existing Questions:</h3>
+    <ul>
+        {% for q in questions %}
+            <li>{{ q.text }} (Answer: Option {{ q.correct_option }})</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

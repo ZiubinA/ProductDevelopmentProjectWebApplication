@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # 1. Departments for the "Battle" (Logistics vs Accounting)
 class Department(models.Model):
@@ -34,7 +36,6 @@ class Idea(models.Model):
     submitted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     voters = models.ManyToManyField(User, related_name='voted_ideas', blank=True)
     
-    # NEW: The checkbox to hide the name
     is_anonymous = models.BooleanField(default=False)
     
     is_approved = models.BooleanField(default=False)
@@ -45,16 +46,48 @@ class Idea(models.Model):
 class Training(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    # "datetime-local" input will save to this field
     date_time = models.DateTimeField()
-    location = models.CharField(max_length=100) # e.g. "Meeting Room A" or "Zoom"
+    location = models.CharField(max_length=100)
     
     organizer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organized_trainings')
     
-    # This tracks who registered
     attendees = models.ManyToManyField(User, related_name='attended_trainings', blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+
+# ... keep existing models ...
+
+class Question(models.Model):
+    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='questions')
+    text = models.CharField(max_length=300)
+    option_1 = models.CharField(max_length=200)
+    option_2 = models.CharField(max_length=200)
+    option_3 = models.CharField(max_length=200)
+    correct_option = models.CharField(max_length=1, choices=[('1', 'Option 1'), ('2', 'Option 2'), ('3', 'Option 3')])
+
+    def __str__(self):
+        return self.text
+
+class QuizResult(models.Model):
+    training = models.ForeignKey(Training, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f"{self.user.username} scored {self.score} in {self.training.title}"
+    
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    # This try/except block prevents crashes if the profile doesn't exist yet
+    try:
+        instance.profile.save()
+    except Profile.DoesNotExist:
+        Profile.objects.create(user=instance)

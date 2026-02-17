@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count
-from .models import Department, Idea, Profile, Training 
-from .forms import IdeaForm, TrainingForm              
+from .models import Department, Idea, Profile, Training, Question, QuizResult
+from .forms import IdeaForm, TrainingForm, QuestionForm           
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 
 # 1. Home Page (Welcome)
 def dashboard(request):
@@ -84,3 +86,65 @@ def register_training(request, training_id):
             training.attendees.add(request.user)    # Register
 
     return redirect('training_page')
+
+# 7. Organizer adds a question
+def add_question(request, training_id):
+    training = get_object_or_404(Training, pk=training_id)
+    
+    # Security: Only the organizer can add questions
+    if request.user != training.organizer:
+        return redirect('training_page')
+
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.training = training
+            question.save()
+            return redirect('add_question', training_id=training.id) # Reload to add another
+    else:
+        form = QuestionForm()
+
+    # Show list of existing questions below the form
+    existing_questions = training.questions.all()
+    
+    return render(request, 'gameplay/add_question.html', {
+        'training': training, 
+        'form': form, 
+        'questions': existing_questions
+    })
+
+# 8. Attendees take the quiz
+def take_quiz(request, training_id):
+    training = get_object_or_404(Training, pk=training_id)
+    questions = training.questions.all()
+
+    if request.method == 'POST':
+        score = 0
+        for q in questions:
+            selected_option = request.POST.get(f'question_{q.id}')
+            if selected_option == q.correct_option:
+                score += 1
+        
+        QuizResult.objects.create(training=training, user=request.user, score=score)
+        
+        request.user.profile.total_score += (score * 10)
+        request.user.profile.save()
+
+        return redirect('training_page')
+
+    return render(request, 'gameplay/take_quiz.html', {'training': training, 'questions': questions})
+
+# 9. Registration Page
+def register_page(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Log the user in immediately after signing up
+            login(request, user)
+            return redirect('dashboard')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'gameplay/register.html', {'form': form})

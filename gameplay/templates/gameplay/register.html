@@ -1,0 +1,30 @@
+{% extends 'gameplay/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 50px auto; border-top: 5px solid #3498db;">
+    <h2 style="text-align: center;">📝 Create Account</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold;">{{ field.label }}</label>
+                <br>
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="color: #888; display: block; margin-top: 5px;">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" style="background: #3498db; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-size: 1.1em; cursor: pointer;">
+            Sign Up
+        </button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 15px;">
+        Already have an account? <a href="{% url 'login' %}">Login here</a>
+    </p>
+</div>
+{% endblock %}

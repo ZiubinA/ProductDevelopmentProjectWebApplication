@@ -30,6 +30,7 @@
             <button type="submit" style="background: none; border: none; color: white; font-weight: bold; cursor: pointer;">Logout</button>
         </form>
     {% else %}
+        <a href="{% url 'register' %}" style="float: right; margin-left: 20px;">Register</a>
         <a href="{% url 'login' %}" style="float: right;">Login</a>
     {% endif %}
     </div>

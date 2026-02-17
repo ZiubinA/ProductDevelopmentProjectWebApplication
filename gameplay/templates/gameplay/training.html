@@ -78,6 +78,25 @@
                         </button>
                     {% endif %}
                 </a>
+
+                <hr style="margin: 10px 0;">
+
+                {% if request.user == training.organizer %}
+                    <a href="{% url 'add_question' training.id %}">
+                        <button style="background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em;">
+                            ✏️ Manage Quiz
+                        </button>
+                    </a>
+                    {% endif %}
+
+                {% if request.user in training.attendees.all and training.questions.exists %}
+                    <br><br>
+                    <a href="{% url 'take_quiz' training.id %}">
+                        <button style="background: #8e44ad; color: white; border: none; padding: 8px 15px; border-radius: 4px;">
+                            📝 Take Quiz
+                        </button>
+                    </a>
+                {% endif %}
             </div>
 
         </div>
