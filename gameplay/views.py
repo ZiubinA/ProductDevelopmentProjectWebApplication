@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Count
+from django.db.models import Count, Sum
 from .models import Department, Idea, Profile, Training, Question, QuizResult
 from .forms import IdeaForm, TrainingForm, QuestionForm           
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,10 @@ def dashboard(request):
 
 # 2. Departments Page
 def departments_page(request):
-    all_departments = Department.objects.all()
+    all_departments = Department.objects.annotate(
+        total_points=Sum('profile__total_score')
+    ).order_by('-total_points')
+    
     return render(request, 'gameplay/departments.html', {'departments': all_departments})
 
 # 3. Ideas Page (Form + List)

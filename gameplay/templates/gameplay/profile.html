@@ -5,6 +5,8 @@
         <h3>Details</h3>
         <p><strong>Department:</strong> {{ profile.department.name|default:"Not Assigned" }}</p>
         <p><strong>Email:</strong> {{ request.user.email }}</p>
+        
+        <p><strong>Total Score:</strong> <span style="color: #27ae60; font-weight: bold; font-size: 1.2em;">{{ profile.total_score }}</span></p>
     </div>
 
     <div class="card">
