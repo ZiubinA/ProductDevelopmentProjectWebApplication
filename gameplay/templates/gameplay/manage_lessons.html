@@ -1,0 +1,31 @@
+{% extends 'gameplay/base.html' %}
+
+{% block content %}
+    <h1>Manage Course: {{ training.title }}</h1>
+    
+    <div class="card" style="border-left: 5px solid #3498db;">
+        <h3>Add a New Lesson</h3>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                Save Lesson
+            </button>
+        </form>
+        <br>
+        <a href="{% url 'training_page' %}" style="text-decoration: none;">← Back to Trainings</a>
+    </div>
+
+    <h3>Course Curriculum:</h3>
+    <ul>
+        {% for lesson in lessons %}
+            <li style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px; border: 1px solid #ddd;">
+                <strong>Lesson {{ lesson.order }}: {{ lesson.title }}</strong>
+                <br>
+                <a href="{% url 'view_lesson' lesson.id %}" target="_blank">Preview Lesson</a>
+            </li>
+        {% empty %}
+            <li>No lessons added yet.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

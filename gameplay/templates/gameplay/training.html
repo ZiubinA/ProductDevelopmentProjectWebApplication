@@ -67,6 +67,25 @@
                         No one yet.
                     {% endfor %}
                 </div>
+
+                <div style="margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #ddd;">
+                    <strong style="color: #2c3e50;">📚 Course Curriculum:</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        {% for lesson in training.lessons.all %}
+                            <li style="margin-bottom: 5px;">
+                                {% if request.user in training.attendees.all or request.user == training.organizer %}
+                                    <a href="{% url 'view_lesson' lesson.id %}" style="text-decoration: none; color: #3498db; font-weight: bold;">
+                                        Lesson {{ lesson.order }}: {{ lesson.title }}
+                                    </a>
+                                {% else %}
+                                    <span style="color: #999;">Lesson {{ lesson.order }}: {{ lesson.title }} 🔒 (Register to view)</span>
+                                {% endif %}
+                            </li>
+                        {% empty %}
+                            <li style="color: #888;">No lessons uploaded yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
 
             <div style="text-align: center; min-width: 120px;">
@@ -92,9 +111,14 @@
                 <hr style="margin: 10px 0;">
 
                 {% if request.user == training.organizer %}
+                    <a href="{% url 'manage_lessons' training.id %}" style="display: block; margin-bottom: 10px;">
+                        <button style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; cursor: pointer; width: 100%;">
+                            Manage Lessons
+                        </button>
+                    </a>
                     <a href="{% url 'add_question' training.id %}" style="display: block; margin-bottom: 10px;">
                         <button style="background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; cursor: pointer; width: 100%;">
-                            ✏️ Manage Quiz
+                            Manage Quiz
                         </button>
                     </a>
                 {% endif %}

@@ -89,3 +89,17 @@ def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
     except Profile.DoesNotExist:
         Profile.objects.create(user=instance)
+
+class Lesson(models.Model):
+    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='lessons')
+    title = models.CharField(max_length=200)
+    content = models.TextField(blank=True, help_text="Main text for the lesson")
+    video_url = models.URLField(blank=True, null=True, help_text="Paste a YouTube or Vimeo link")
+    attached_file = models.FileField(upload_to='training_files/', blank=True, null=True)
+    order = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.training.title} - {self.order}. {self.title}"

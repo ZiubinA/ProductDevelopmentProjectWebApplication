@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Count, Sum
-from .models import Department, Idea, Profile, Training, Question, QuizResult
-from .forms import IdeaForm, TrainingForm, QuestionForm           
+from .models import Department, Idea, Profile, Training, Question, QuizResult, Lesson
+from .forms import IdeaForm, TrainingForm, QuestionForm, LessonForm         
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
@@ -151,3 +151,40 @@ def register_page(request):
         form = UserCreationForm()
 
     return render(request, 'gameplay/register.html', {'form': form})
+
+# 10. Organizer adds lessons to a training
+def manage_lessons(request, training_id):
+    training = get_object_or_404(Training, pk=training_id)
+    
+    # Security: Only the organizer can manage lessons
+    if request.user != training.organizer:
+        return redirect('training_page')
+
+    if request.method == 'POST':
+        # request.FILES is required for the attached slides/documents
+        form = LessonForm(request.POST, request.FILES)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.training = training
+            lesson.save()
+            return redirect('manage_lessons', training_id=training.id)
+    else:
+        form = LessonForm(initial={'order': training.lessons.count() + 1})
+
+    lessons = training.lessons.all()
+    return render(request, 'gameplay/manage_lessons.html', {
+        'training': training, 
+        'form': form, 
+        'lessons': lessons
+    })
+
+# 11. Attendees view the actual lesson
+def view_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    training = lesson.training
+    
+    # Security: Must be registered to view
+    if request.user not in training.attendees.all() and request.user != training.organizer:
+        return redirect('training_page')
+        
+    return render(request, 'gameplay/view_lesson.html', {'lesson': lesson, 'training': training})

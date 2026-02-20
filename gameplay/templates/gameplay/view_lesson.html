@@ -1,0 +1,31 @@
+{% extends 'gameplay/base.html' %}
+
+{% block content %}
+    <a href="{% url 'training_page' %}" style="text-decoration: none;">← Back to Course Hub</a>
+    
+    <div class="card" style="margin-top: 20px;">
+        <h1 style="margin-top: 0; color: #2c3e50;">Lesson {{ lesson.order }}: {{ lesson.title }}</h1>
+        
+        {% if lesson.video_url %}
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <strong>🎥 Video Material:</strong> 
+                <a href="{{ lesson.video_url }}" target="_blank" style="color: #e74c3c; font-weight: bold;">Watch Video Here</a>
+            </div>
+        {% endif %}
+
+        <div style="font-size: 1.1em; line-height: 1.6; color: #333; margin-bottom: 30px;">
+            {{ lesson.content|linebreaks }}
+        </div>
+
+        {% if lesson.attached_file %}
+            <div style="border-top: 2px solid #eee; padding-top: 15px;">
+                <strong>📎 Attached Files:</strong><br><br>
+                <a href="{{ lesson.attached_file.url }}" download>
+                    <button style="background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                        Download Slides / Materials
+                    </button>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

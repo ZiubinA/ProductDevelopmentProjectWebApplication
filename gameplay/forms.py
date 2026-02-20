@@ -1,5 +1,5 @@
 from django import forms
-from .models import Idea, Training, Question
+from .models import Idea, Training, Question, Lesson
 
 class IdeaForm(forms.ModelForm):
     class Meta:
@@ -36,4 +36,16 @@ class QuestionForm(forms.ModelForm):
             'option_2': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Option 2'}),
             'option_3': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Option 3'}),
             'correct_option': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class LessonForm(forms.ModelForm):
+    class Meta:
+        model = Lesson
+        fields = ['order', 'title', 'content', 'video_url', 'attached_file']
+        widgets = {
+            'order': forms.NumberInput(attrs={'class': 'form-control', 'style': 'width: 80px;'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Lesson Title'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write the lesson text here...', 'rows': 5}),
+            'video_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://youtube.com/...'}),
+            'attached_file': forms.FileInput(attrs={'class': 'form-control'}),
         }
