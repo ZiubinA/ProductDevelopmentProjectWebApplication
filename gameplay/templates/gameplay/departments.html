@@ -5,16 +5,22 @@
     <div class="card">
         <ul style="list-style: none; padding: 0;">
             {% for dept in departments %}
-                <li style="padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 1.2em;">
-                    <strong>{{ forloop.counter }}. {{ dept.name }}</strong>
-                    
-                    <span style="color: #2c3e50; font-weight: bold;">
-                        {{ dept.total_points|default:0 }} pts
-                    </span>
-                </li>
-            {% empty %}
-                <li>No departments yet!</li>
-            {% endfor %}
+            <li style="padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-size: 1.2em;">
+                
+                <strong>
+                    {{ forloop.counter }}. 
+                    <a href="{% url 'department_detail' dept.id %}" style="text-decoration: none; color: #2980b9;">
+                        {{ dept.name }}
+                    </a>
+                </strong>
+
+                <span style="color: #2c3e50; font-weight: bold;">
+                    {{ dept.total_points|default:0 }} pts
+                </span>
+            </li>
+        {% empty %}
+            <li>No departments yet!</li>
+        {% endfor %}
         </ul>
     </div>
 {% endblock %}

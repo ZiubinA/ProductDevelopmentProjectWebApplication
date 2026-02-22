@@ -5,8 +5,10 @@ from django.dispatch import receiver
 
 # 1. Departments for the "Battle" (Logistics vs Accounting)
 class Department(models.Model):
-    name = models.CharField(max_length=100) # e.g. "Logistics"
-    
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, help_text="What does this team do?")
+    video_url = models.URLField(blank=True, null=True, help_text="YouTube intro video")
+
     def __str__(self):
         return self.name
 
@@ -59,7 +61,9 @@ class Training(models.Model):
         return self.title
 
 class Question(models.Model):
-    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='questions')
+    training = models.ForeignKey(Training, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
+    
     text = models.CharField(max_length=300)
     option_1 = models.CharField(max_length=200)
     option_2 = models.CharField(max_length=200)
@@ -70,12 +74,11 @@ class Question(models.Model):
         return self.text
 
 class QuizResult(models.Model):
-    training = models.ForeignKey(Training, on_delete=models.CASCADE)
+    training = models.ForeignKey(Training, on_delete=models.CASCADE, null=True, blank=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
-    
-    def __str__(self):
-        return f"{self.user.username} scored {self.score} in {self.training.title}"
     
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

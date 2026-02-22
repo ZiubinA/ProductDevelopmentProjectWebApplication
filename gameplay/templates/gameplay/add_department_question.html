@@ -1,0 +1,32 @@
+{% extends 'gameplay/base.html' %}
+
+{% block content %}
+    <h1>Add Quiz for: {{ department.name }}</h1>
+    
+    <div class="card" style="border-left: 5px solid #f39c12;">
+        <h3>Add a New Question</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" style="background: #f39c12; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer;">
+                Save Question
+            </button>
+        </form>
+        <br>
+        <a href="{% url 'department_detail' department.id %}" style="text-decoration: none;">
+            ← Back to {{ department.name }}
+        </a>
+    </div>
+
+    <h3>Existing Questions:</h3>
+    <ul>
+        {% for q in questions %}
+            <li style="margin-bottom: 5px;">
+                <strong>{{ q.text }}</strong> 
+                <span style="color: #777;">(Correct Answer: Option {{ q.correct_option }})</span>
+            </li>
+        {% empty %}
+            <li>No questions added yet.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

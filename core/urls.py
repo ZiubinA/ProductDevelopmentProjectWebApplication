@@ -5,7 +5,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from gameplay.views import (
     dashboard, departments_page, ideas_page, vote_idea, 
-    profile_page, training_page, register_training, add_question, take_quiz, register_page, manage_lessons, view_lesson
+    profile_page, training_page, register_training, add_question, 
+    take_quiz, register_page, manage_lessons, view_lesson,
+    department_detail, add_department_question, take_department_quiz
 )
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +25,9 @@ urlpatterns = [
     path('register/', register_page, name='register'),
     path('training/<int:training_id>/lessons/', manage_lessons, name='manage_lessons'),
     path('lesson/<int:lesson_id>/', view_lesson, name='view_lesson'),
+    path('department/<int:department_id>/', department_detail, name='department_detail'),
+    path('department/<int:department_id>/add-quiz/', add_department_question, name='add_department_question'),
+    path('department/<int:department_id>/take-quiz/', take_department_quiz, name='take_department_quiz'),
 ]
 
 if settings.DEBUG:

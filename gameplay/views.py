@@ -5,6 +5,7 @@ from .forms import IdeaForm, TrainingForm, QuestionForm, LessonForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+import re  
 
 # 1. Home Page (Welcome)
 def dashboard(request):
@@ -188,3 +189,82 @@ def view_lesson(request, lesson_id):
         return redirect('training_page')
         
     return render(request, 'gameplay/view_lesson.html', {'lesson': lesson, 'training': training})
+
+# 12. Department Profile Page
+def department_detail(request, department_id):
+    department = get_object_or_404(Department, pk=department_id)
+    questions = department.questions.all()
+    
+    has_taken_quiz = QuizResult.objects.filter(user=request.user, department=department).exists()
+    total_score = department.profile_set.aggregate(sum=Sum('total_score'))['sum'] or 0
+
+    video_embed_url = None
+    if department.video_url:
+        regex = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
+        match = re.search(regex, department.video_url)
+        
+        if match:
+            video_id = match.group(1)
+            video_embed_url = f"https://www.youtube.com/embed/{video_id}"
+
+    return render(request, 'gameplay/department_detail.html', {
+        'department': department,
+        'questions': questions,
+        'has_taken_quiz': has_taken_quiz,
+        'total_score': total_score,
+        'video_embed_url': video_embed_url, 
+    })
+
+# 13. Add Questions to Department
+def add_department_question(request, department_id):
+    department = get_object_or_404(Department, pk=department_id)
+    
+    # Only superusers (Admins) should edit department quizzes
+    if not request.user.is_superuser:
+        return redirect('department_detail', department_id=department.id)
+
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.department = department 
+            question.save()
+            return redirect('add_department_question', department_id=department.id)
+    else:
+        form = QuestionForm()
+
+    return render(request, 'gameplay/add_department_question.html', {
+        'department': department, 
+        'form': form,
+        'questions': department.questions.all()
+    })
+
+# 14. Take Department Quiz
+def take_department_quiz(request, department_id):
+    department = get_object_or_404(Department, pk=department_id)
+    questions = department.questions.all()
+
+    # Prevent taking it twice
+    if QuizResult.objects.filter(user=request.user, department=department).exists():
+        return redirect('department_detail', department_id=department.id)
+
+    if request.method == 'POST':
+        score = 0
+        for q in questions:
+            selected = request.POST.get(f'question_{q.id}')
+            if selected == q.correct_option:
+                score += 1
+
+        QuizResult.objects.create(department=department, user=request.user, score=score)
+        
+        # Give Points (e.g., 50 points for learning about a department!)
+        points_earned = score * 10
+        request.user.profile.total_score += points_earned
+        request.user.profile.save()
+
+        return redirect('department_detail', department_id=department.id)
+
+    return render(request, 'gameplay/take_quiz.html', {
+        'training': department,
+        'questions': questions
+    })
