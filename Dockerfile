@@ -1,9 +1,11 @@
-FROM python:3.15.0a6-alpine3.23
+FROM python:3.12-alpine3.20
 
 RUN apk add --no-cache \
     build-base \
     libpq-dev \
-    musl-dev
+    musl-dev \
+    libxml2-dev \
+    libxslt-dev
 
 WORKDIR /app
 
