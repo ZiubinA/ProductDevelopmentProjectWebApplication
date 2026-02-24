@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
-from gameplay.models import Department, Question, QuizResult
+# absolute import to avoid "unknown parent package" errors
+from gameplay.models import Department, Question, QuizResult 
 
 class DepartmentTests(TestCase):
     def setUp(self):
@@ -27,11 +28,18 @@ class DepartmentTests(TestCase):
 
     def test_department_model(self):
         """Test if department is created correctly"""
+        print("\n------------------------------------------------")
+        print("START TEST: Department Model")
+        
         self.assertEqual(self.department.name, "IT Department")
         self.assertEqual(str(self.department), "IT Department")
+        
+        print("END TEST: Department Model is OK")
 
     def test_department_page_loads(self):
         """Test if the department page loads (requires login)"""
+        print("\nSTART TEST: Page Load")
+        
         self.client.login(username='testuser', password='password123')
         
         # Get the page
@@ -42,9 +50,13 @@ class DepartmentTests(TestCase):
         
         # Check if department name is on the page
         self.assertContains(response, "IT Department")
+        
+        print("END TEST: Page Load is OK")
 
     def test_quiz_submission(self):
         """Test submitting a quiz answer"""
+        print("\nSTART TEST: Quiz Submission")
+        
         self.client.login(username='testuser', password='password123')
         
         # Simulate posting a correct answer
@@ -56,3 +68,6 @@ class DepartmentTests(TestCase):
         result = QuizResult.objects.filter(user=self.user, department=self.department).first()
         self.assertIsNotNone(result)
         self.assertEqual(result.score, 1)  # 1 correct answer
+        
+        print("END TEST: Quiz Submission is OK")
+        print("------------------------------------------------\n")

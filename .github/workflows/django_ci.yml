@@ -31,7 +31,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.12' 
 
     - name: Install Dependencies
       run: |
@@ -46,4 +46,5 @@ jobs:
         DATABASE_URL: postgres://ci_user:ci_password@localhost:5432/ci_test_db
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
       run: |
-        python manage.py test
+        # The '-v 2' flag makes it verbose so you can see your print() messages
+        python manage.py test -v 2
