@@ -74,6 +74,17 @@ DATABASES = {
         cast=dj_database_url.parse
     )
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mydb',
+#         'USER': 'user',
+#         'PASSWORD': 'mypass',
+#         'HOST': '192.168.91.131', # или 'localhost', если порты проброшены
+#         'PORT': '5432',
+#     }
+# }
+
 
 
 
