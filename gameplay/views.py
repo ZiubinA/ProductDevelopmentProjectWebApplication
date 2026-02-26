@@ -11,7 +11,52 @@ from django.contrib.auth.decorators import login_required
 # 1. Home Page (Welcome)
 @login_required
 def dashboard(request):
-    return render(request, 'gameplay/dashboard.html')
+    departments = Department.objects.annotate(
+        points=Sum('profile__total_score')
+    ).order_by('-points')
+
+    dept_data = []
+    for dept in departments:
+        total = dept.points or 0
+        dept_data.append({
+            'dept': dept,
+            'total_points': total,
+        })
+
+    max_points = max((d['total_points'] for d in dept_data), default=1)
+    if max_points == 0:
+        max_points = 1
+
+    MIN_HEIGHT = 30
+    MAX_HEIGHT = 120  # reduced so buildings stay on the grid
+
+    # Color palette for accent (used on the top department)
+    colors = ['#06b6d4', '#f43f5e', '#f97316', '#22c55e', '#ef4444', '#64748b',
+              '#8b5cf6', '#ec4899', '#14b8a6', '#eab308']
+
+    # Grid positions — spread buildings nicely within the grid
+    # (top%, left%) — keep them away from edges so 80px buildings stay visible
+    positions = [
+        (15, 30), (15, 60),
+        (38, 15), (38, 45), (38, 72),
+        (62, 25), (62, 55),
+        (80, 15), (80, 45), (80, 72),
+    ]
+
+    for i, d in enumerate(dept_data):
+        ratio = d['total_points'] / max_points
+        d['dept'].building_height = int(MIN_HEIGHT + ratio * (MAX_HEIGHT - MIN_HEIGHT))
+        d['dept'].total_points_display = d['total_points']
+        d['dept'].color = colors[i % len(colors)]
+        pos = positions[i % len(positions)]
+        d['dept'].pos_top = pos[0]
+        d['dept'].pos_left = pos[1]
+        # Mark the top department so the template can highlight it
+        d['dept'].is_top = (i == 0 and d['total_points'] > 0)
+
+    return render(request, 'gameplay/dashboard.html', {
+        'departments': [d['dept'] for d in dept_data],
+    })
 
 # 2. Departments Page
 def departments_page(request):
@@ -270,3 +315,46 @@ def take_department_quiz(request, department_id):
         'training': department,
         'questions': questions
     })
+
+def campus_map(request):
+    departments = Department.objects.all()
+
+    # Gather total points for each department
+    dept_data = []
+    for dept in departments:
+        total = dept.total_points()  # adjust to however you calculate points
+        dept_data.append({
+            'dept': dept,
+            'total_points': total,
+        })
+
+    # Find the max points to scale heights proportionally
+    max_points = max((d['total_points'] for d in dept_data), default=1)
+    if max_points == 0:
+        max_points = 1  # avoid division by zero
+
+    # Scale: min height = 30px, max height = 200px
+    MIN_HEIGHT = 30
+    MAX_HEIGHT = 200
+
+    for d in dept_data:
+        ratio = d['total_points'] / max_points
+        d['dept'].building_height = int(MIN_HEIGHT + ratio * (MAX_HEIGHT - MIN_HEIGHT))
+        d['dept'].total_points = d['total_points']
+
+    # Slug mapping for CSS classes (adjust to match your department names)
+    slug_map = {
+        'IT': 'it',
+        'HR': 'hr',
+        'Logistics': 'logs',
+        'Operations': 'ops',
+        'Safety': 'safe',
+        'Maintenance': 'maint',
+    }
+    for d in dept_data:
+        d['dept'].slug = slug_map.get(d['dept'].name, d['dept'].name.lower())
+
+    context = {
+        'departments': [d['dept'] for d in dept_data],
+    }
+    return render(request, 'gameplay/campus_map.html', context)
