@@ -6,8 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 import re  
+from django.contrib.auth.decorators import login_required
 
 # 1. Home Page (Welcome)
+@login_required
 def dashboard(request):
     return render(request, 'gameplay/dashboard.html')
 
